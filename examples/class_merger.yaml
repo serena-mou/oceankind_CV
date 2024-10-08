@@ -1,0 +1,8 @@
+new_classes:
+  0: alive
+  1: not_alive
+old_classes:
+  0: dog
+  1: cat
+  2: person
+  3: laptop
