@@ -49,10 +49,11 @@ class COCO2YOLOBB():
         # For each annotation, get the class, image ID and the bbox
         annotations = data["annotations"]
 
-        cls = [annotation["category_id"] for annotation in annotations]
-        img_ids = [annotation["image_id"] for annotation in annotations]
+        cls = [int(annotation["category_id"])-1 for annotation in annotations]
+        img_ids = [int(annotation["image_id"])-1 for annotation in annotations]
         bbxs = [annotation["bbox"] for annotation in annotations]
         im_sz = [annotation["segmentation"]["size"] for annotation in annotations]
+        # print(classes, img_names, cls, img_ids, bbxs, im_sz)
         
         return classes, img_names, cls, img_ids, bbxs, im_sz
     
@@ -126,9 +127,9 @@ class COCO2YOLOBB():
             
             [n, merge] = str(to_merge[cls]).split(',')
             if int(merge) not in new_class_mapping:
-                new_class_mapping[int(merge)] = [cls+1]
+                new_class_mapping[int(merge)] = [cls]
             else:
-                new_class_mapping[int(merge)].append(cls+1)
+                new_class_mapping[int(merge)].append(cls)
 
         return new_class_mapping
 
@@ -145,7 +146,7 @@ class COCO2YOLOBB():
 
         return [xn, yn, wn, hn]
 
-    def write_txt(self, img_names, cls, img_ids, bbxs, im_sz, mapping):
+    def write_txt(self, classes, img_names, cls, img_ids, bbxs, im_sz, mapping):
         
         # location to save labels
         out_folder = os.path.join(self.save_location,"all_labels")
@@ -169,7 +170,7 @@ class COCO2YOLOBB():
                 # print(out_txt_name)
 
             # get the indexes of all annotations in this image
-            all_im_idx = [j for j in range(len(img_ids)) if img_ids[j] == i+1]
+            all_im_idx = [j for j in range(len(img_ids)) if img_ids[j] == i]
             # print(img_ids)
             # print(cls)
             # print(out_txt_name, all_im_idx)
@@ -189,8 +190,9 @@ class COCO2YOLOBB():
                             continue# print("Remapping of classes error")
 
                 else: 
-                    idx_class = cls[idx]
-                    #self.write_yaml(cls)
+                    idx_class = cls[idx] 
+                    #print(cls,idx)
+                    self.write_yaml(classes)
                 [xn, yn, wn, hn] = self.bbx_converter(bbxs[idx], im_sz[idx])
                 lines.append((idx_class, xn, yn, wn, hn))
 
@@ -218,7 +220,7 @@ class COCO2YOLOBB():
                 summary_dict[i] = 0
 
         for i, cls_idx in enumerate(cls): 
-            summary_dict[classes[cls_idx-1]] +=1
+            summary_dict[classes[cls_idx]] +=1
 
             # if classes[cls_idx-1] == "remove_Orbicellla_y_SCTLD":
             #         print(img_names[img_ids[i]-1])
@@ -259,7 +261,7 @@ class COCO2YOLOBB():
             else:
                 mapping = None    
             
-            self.write_txt(img_names, cls, img_ids, bbxs, im_sz, mapping)
+            self.write_txt(classes, img_names, cls, img_ids, bbxs, im_sz, mapping)
 
             # self.write_txt(img_names, cls, img_ids, bbxs, im_sz, mapping)
             
@@ -293,7 +295,7 @@ def main():
             new_cls = input("What are the new classes to merge to? cls1,cls2,...,clsn : ")
         else:
             raise ValueError("Please type Y or N and enter")
-    
+
     elif merge == "N":
         merger = False
         merge_file = None
