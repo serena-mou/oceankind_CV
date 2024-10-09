@@ -124,7 +124,8 @@ class COCO2YOLOBB():
             self.new_cls.append(new_classes[cls])
         
         for cls in to_merge:
-            
+            if ',' not in str(to_merge[cls]):
+                sys.exit("class merger yaml not updated to correct format")
             [n, merge] = str(to_merge[cls]).split(',')
             if int(merge) not in new_class_mapping:
                 new_class_mapping[int(merge)] = [cls]
@@ -256,7 +257,7 @@ class COCO2YOLOBB():
                 elif self.merge_file == None:
                     self.write_class_merger(classes)
                     print("\n**NOTE** An assumption is being made that if multiple jsons are being loaded, all classes exist in first json to be loaded\n")
-                    sys.exit("Class merger file written to %s, please update and load on next run. Exiting... "%(self.save_location+"/class_merger.yaml"))
+                    sys.exit("Class merger file written to %s, please update and load on next run. Exiting... "%(os.path.join(self.save_location,"class_merger.yaml")))
 
             else:
                 mapping = None    
@@ -277,34 +278,67 @@ class COCO2YOLOBB():
             #         shutil.copy2(src,dest)
             #     else: print("not a file", src)
 
-            
-def main():
 
-    json_file = input("Path to JSON file or regex to files: ")
-    save_location = input("Path to save labels: ")
+def arg_parse():
+    parser = argparse.ArgumentParser(description='Convert from COCO SAM annotation to YOLO format')
+
+    parser.add_argument("--json", dest = "json_file",
+            help = "Path to JSON file or regex to JSON files", default = None, type = str, required=True)
+    
+    parser.add_argument("--save", dest = "save_location",
+            help = "Path to save labels", default = None, type = str, required=True)
+    
+    parser.add_argument("--merge", dest = "merge_file",
+            help = "Path to merge yaml file", default = None, type = str, required=False)
+    
+    parser.add_argument("--newclasses", dest = "new_cls",
+            help = "The class names to be merged to, separated by commas. Ex: cls0,cls1,cls2", default = None, type = str, required=False)
+
+    return parser.parse_args()
+
+
+def main():
+    args = arg_parse()
+
+    #json_file = input("Path to JSON file or regex to files: ")
+    #save_location = input("Path to save labels: ")
     merge = input("Do you need to merge classes? Y/N: ")
     if merge == "Y":
         merger = True
 
-        ex_merge_file = input("Do you have an existing merge file? Y/N: ")
+        ex_merge_file = input("\nDo you want to use an existing merge file? Y/N: ")
         if ex_merge_file == "Y":
-            merge_file = input("Path to merge yaml: ")
+            if args.merge_file == None:
+                sys.exit("Please add merge file path argument to --merge")
+            
+            merge_file = args.merge_file#input("Path to merge yaml: ")
+            if args.new_cls:
+                print("--newclasses being ignored\n")
             new_cls = None
         elif ex_merge_file == "N":
+            if args.merge_file:
+                print("--merge being ignored\n")
             merge_file = None
-            new_cls = input("What are the new classes to merge to? cls1,cls2,...,clsn : ")
+            if args.new_cls == None:
+                sys.exit("Please add new classes argument to --newclasses")
+            new_cls = args.new_cls#input("What are the new classes to merge to? cls1,cls2,...,clsn : ")
         else:
             raise ValueError("Please type Y or N and enter")
 
     elif merge == "N":
+        if args.merge_file:
+            print("--merge being ignored\n")
+        if args.new_cls:
+            print("--newclasses being ignored\n")
         merger = False
         merge_file = None
         new_cls = None
     else:
         raise ValueError("Please type Y or N and enter")
 
-    test = COCO2YOLOBB(json_file, save_location, merger, merge_file, new_cls)
+    test = COCO2YOLOBB(args.json_file, args.save_location, merger, merge_file, new_cls)
     test.run()
+    print("DONE")
 
 if __name__=='__main__':
     main()

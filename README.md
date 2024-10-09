@@ -69,31 +69,23 @@ To convert to YOLO format:
 
 ```bash
 # Run conversion script
-python tools/coco_to_yolo_format.py
+python tools/coco_to_yolo_format.py --json /Data/CVAT_example/Raw_labels/*/*/*.json --save /Data/Processed/CVAT_example/ --merge /Data/CVAT_example/class_merger.yaml --newclasses living,not_living
 
-# Enter prompts depending on where your labels are saved and where you would like the output. Examples:
-
-## For a single json.
-Path to JSON file or regex to files: /Data/Raw_labels/0-100/annotations/instances_default.json 
-
-## For multiple json, assuming in above format. The asterisk means all files in folder.
-Path to JSON file or regex to files: /Data/Raw_labels/*/*/*.json 
-
-Path to save labels: /Data/Processed/CVAT_example
-## An additional folder "all_labels" will be appended to this folder.
+## For a single json:
+--json /Data/Raw_labels/0-100/annotations/instances_default.json 
 
 Do you need to merge classes? Y/N: Y
-## if No, the script will complete, if Yes:
+## if No, the script will complete --merge and --newclasses are ignored, if Yes:
 
 Do you have an existing merge file? Y/N:
 ## if No:
-What are the new classes to merge to? cls1,cls2,...,clsn : living,not_living
+--newclasses is required, --merge is ignored
 ## The class merger yaml will be generated and script will exit.
 ## You will need to edit this file and save. Read class_merger section for more information.
 ## Run conversion script again, this time entering Y for existing merge file. 
 
 ## if Yes:
-Path to merge yaml: /Data/Processed/CVAT_example/class_merger.yaml
+--merge is required, --newclasses is ignored
 ```
 The output will be a txt file for each image in YOLO format in the folder /Data/Processed/CVAT_example/all_labels
 
@@ -115,4 +107,8 @@ old_classes:
 ```
 
 Save and rerun tools/coco_to_yolo_format.py, this time providing the path to the edited class_merger.yaml
+
+# Data preparation
+
+
 
