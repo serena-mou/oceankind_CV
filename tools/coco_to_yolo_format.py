@@ -1,17 +1,23 @@
 #/usr/bin/env python3
 
-# convert the masks downloaded from CVAT in COCO format into bounding boxes 
+"""
+Author: Serena Mou
+Created: 23 July 2024
+
+===
+Converts the Segment Anything Model (SAM) masks from CVAT in COCO format into YOLO compatible bounding boxes
+===
+
+"""
 
 import json
 import os
 import yaml
 import glob
-import shutil
 import csv
 import sys
 import argparse
 
-from ast import literal_eval
 
 class COCO2YOLOBB():
     def __init__(self, json_file, save_location, merger, merge_file, new_cls):
@@ -62,15 +68,14 @@ class COCO2YOLOBB():
 
     def write_yaml(self, classes):
         # generate yaml file with each class name
-        yaml_path = os.path.join(self.save_location,"cvat2yolo.yaml")
+        yaml_path = os.path.join(self.save_location,"data.yaml")
         # dictionary of {0: class0, 1: class1...}
         cls_dict = {k:v for k,v in enumerate(classes)}
 
         data = {
-            "path":"../datasets/yolo",
-            "train": "images/train",
-            "val": "images/val",
-            "test": "images/test",
+            "path":self.save_location,
+            "train": "train",
+            "val": "valid",
             "names": cls_dict
         }
 
