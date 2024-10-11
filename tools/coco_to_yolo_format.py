@@ -69,6 +69,7 @@ class COCO2YOLOBB():
     def write_yaml(self, classes):
         # generate yaml file with each class name
         yaml_path = os.path.join(self.save_location,"data.yaml")
+        test_yaml_path = os.path.join(self.save_location,"test.yaml")
         # dictionary of {0: class0, 1: class1...}
         cls_dict = {k:v for k,v in enumerate(classes)}
 
@@ -79,9 +80,20 @@ class COCO2YOLOBB():
             "names": cls_dict
         }
 
+        test = {
+            "path":self.save_location,
+            "train": "train",
+            "val": "test",
+            "names": cls_dict
+        }
+
+
         with open(yaml_path, 'w') as outfile:
             yaml.dump(data, outfile, sort_keys=False)
- 
+
+        with open(test_yaml_path, 'w') as outfile:
+            yaml.dump(test, outfile, sort_keys=False)
+  
     def write_class_merger(self, classes):
         # generate yaml file with new classes and old classes
         # for the purpose of merging classes 
