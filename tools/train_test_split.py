@@ -13,9 +13,7 @@ import sys
 import shutil
 import random
 import argparse
-import numpy as np
-from statistics import mode
-from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.model_selection import train_test_split
 
 random.seed(1)
 
@@ -33,8 +31,6 @@ def arg_parse():
             help = "Fraction to split for testing, 0-1", default = None, type = float)
     parser.add_argument("--dump", dest = "n_dump",
             help = "Number of empty images to drop", default = None, type = int)
-    parser.add_argument("--rand", dest = "random_state",
-            help = "Seed for random generation", default = 1, type = int)
 
     return parser.parse_args()
 
@@ -46,12 +42,12 @@ def main():
     args = arg_parse()
 
     # Check source images exist
-    image_source_dir = os.path.join(args.src_dir, "all_images")
+    image_source_dir = os.path.join(args.src_dir, "images_train")
     if os.path.exists(image_source_dir) == False:
         raise FileNotFoundError("Source directory {} does not exist".format(image_source_dir))
 
     # Check source labels exist
-    label_source_dir = os.path.join(args.src_dir, "all_labels")
+    label_source_dir = os.path.join(args.src_dir, "labels_train")
     if os.path.exists(image_source_dir) == False:
         raise FileNotFoundError("Source directory {} does not exist".format(label_source_dir))
     
@@ -77,9 +73,9 @@ def main():
             print("CONTINUING...\n")
             # Delete existing output dir
             try:
-                if os.path.exists(train_out_dir): shutil.rmtree(train_out_dir)
-                if os.path.exists(valid_out_dir): shutil.rmtree(valid_out_dir)
-                if os.path.exists(test_out_dir): shutil.rmtree(test_out_dir)
+                shutil.rmtree(train_out_dir)
+                shutil.rmtree(valid_out_dir)
+                shutil.rmtree(test_out_dir)
             except OSError as error:
                 print(error)
                 sys.exit()
@@ -140,47 +136,17 @@ def main():
             del images[i]
             del labels[i]
 
-    # Get label mode for each image
-    label_modes = []
-    for label_name in labels:
-
-        # Get path
-        label_path = os.path.join(label_source_dir, label_name)
-        
-        # Check if empty
-        if os.stat(label_path).st_size != 0:
-            
-            # If not empty get label mode
-            with open(label_path, 'r') as stream:
-                lines = stream.readlines()
-                
-                # Iterate label lines
-                cls_list = []
-                for label in lines:
-                    label = label.rstrip()[0]
-                    cls_list.append(label)
-                
-                # Get mode
-                label_modes.append(mode(cls_list))
-        else:
-            # If empty use -1 place holder
-            label_modes.append(-1)
-
     # Get train test splits
     if args.test is None:
-        # Split train and valdidation sets using stratified (balance preserving split)
-        train_images, valid_images, train_labels, valid_labels = set_split(images, labels, label_modes, args.valid)[:4]
-
+        train_images, valid_images, train_labels, valid_labels = train_test_split(images, labels, test_size = args.valid, random_state = 1)
     else:
-        # Calculate split percentages
         total_per = args.valid + args.test
         test_per = args.test / total_per
-        
-        # Split train, valdidation and test sets using stratified (balance preserving split)
-        train_images, temp_images, train_labels, temp_labels, temp_modes = set_split(images, labels, label_modes, total_per)
-        valid_images, test_images, valid_labels, test_labels = set_split(temp_images, temp_labels, temp_modes, test_per)[:4]
+        train_images, temp_images, train_labels, temp_labels = train_test_split(images, labels, test_size = total_per, random_state = 1)
+        valid_images, test_images, valid_labels, test_labels = train_test_split(temp_images, temp_labels, test_size = test_per, random_state = 1)
     
     # Copy splits to output folders
+    
     # Train images
     for img_name in train_images:
         # Make paths
@@ -236,34 +202,7 @@ def main():
 
             # Copy
             copy_file(temp_src_dir, temp_dst_dir)
-
-# Helper function for train test splits
-def set_split(src_images, src_labels, src_label_idents, split):
     
-    # Generate splits
-    train_split = StratifiedShuffleSplit(n_splits=1, test_size = split, random_state = 1)
-    train_gen = train_split.split(np.zeros(len(src_label_idents)), src_label_idents)
-    train_index, valid_index = next(train_gen)
-    
-    # Output arrays
-    train_images = []
-    train_labels = []
-    valid_images = []
-    valid_labels = []
-    valid_idents = []
-    
-    # Fill 
-    for i in train_index:
-        train_images.append(src_images[i])
-        train_labels.append(src_labels[i])
-
-    for i in valid_index:
-        valid_images.append(src_images[i])
-        valid_labels.append(src_labels[i])
-        valid_idents.append(src_label_idents[i])
-
-    return train_images, valid_images, train_labels, valid_labels, valid_idents
-
 # Helper function to copy files
 def copy_file(src_dir, dst_dir):
     try:
