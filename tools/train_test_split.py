@@ -42,12 +42,12 @@ def main():
     args = arg_parse()
 
     # Check source images exist
-    image_source_dir = os.path.join(args.src_dir, "images_train")
+    image_source_dir = os.path.join(args.src_dir, "all_images")
     if os.path.exists(image_source_dir) == False:
         raise FileNotFoundError("Source directory {} does not exist".format(image_source_dir))
 
     # Check source labels exist
-    label_source_dir = os.path.join(args.src_dir, "labels_train")
+    label_source_dir = os.path.join(args.src_dir, "all_labels")
     if os.path.exists(image_source_dir) == False:
         raise FileNotFoundError("Source directory {} does not exist".format(label_source_dir))
     

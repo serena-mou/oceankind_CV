@@ -1,6 +1,6 @@
 path: /Dataset/
 train: train
-val: val
+val: valid
 names:
   0: alive
   1: not_alive
