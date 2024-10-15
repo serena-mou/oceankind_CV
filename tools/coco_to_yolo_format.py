@@ -51,6 +51,11 @@ class COCO2YOLOBB():
         # List all the image filenames
         images = data["images"]
         img_names = [image["file_name"] for image in images]
+        img_size = []
+        for image in images:
+            w = image["width"]
+            h = image["height"]
+            img_size.append([w,h])
         
         # For each annotation, get the class, image ID and the bbox
         annotations = data["annotations"]
