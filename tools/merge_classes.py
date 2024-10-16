@@ -193,7 +193,7 @@ def arg_parse():
 
 def main():
     args = arg_parse()
-    use_case = input("Do you need to generate a merger file (G) or merge classes from existing class_merger.yaml (M)? G/M?")
+    use_case = input("Do you need to generate a merger file (G) or merge classes from existing class_merger.yaml (M)? G/M? ")
     # generating a merger file
     if use_case.lower() == "g":
         # check for new class list and data.yaml of classes
