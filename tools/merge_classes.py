@@ -28,12 +28,16 @@ class mergeClasses():
             with open(self.data_file,'r') as stream:
                 data_loaded = yaml.safe_load(stream)
 
-            self.old_cls_dict = data_loaded["names"]
-
+            try:
+                self.old_cls_dict = data_loaded["names"]
+            except:
+                sys.exit("--data has no \"names\" section of original class names")
         if new_cls is not None:
-            new_cls = new_cls.split(',')
-            self.new_cls_dict = {k:v for k,v in enumerate(new_cls)}
-        
+            try:
+                new_cls = new_cls.split(',')
+                self.new_cls_dict = {k:v for k,v in enumerate(new_cls)}
+            except:
+                sys.exit("--newclasses argument incorrectly formated. See README for more info")
         self.use_case = use_case
 
     def write_class_merger(self):
@@ -41,8 +45,12 @@ class mergeClasses():
         # generate yaml file with new classes and old classes
         # for the purpose of merging classes 
         yaml_path = os.path.join(self.save,"class_merger.yaml")
-
-
+        if os.path.isdir(yaml_path):
+            ow = input("File %s already exists. Overwrite? Y/N")
+            if ow.lower() == "y":
+                print("Overwriting class_merger.yaml")
+            else:
+                sys.exit("ERROR: class_merger.yaml already exists and NOT overwriting. Select different path in --save argument.")
 
         # dictionary of {0: class0, 1: class1...}
         cls_dict = self.old_cls_dict
@@ -63,19 +71,22 @@ class mergeClasses():
         # return dictionary of mappings to new classes
 
         new_class_mapping = {}
-        with open(self.merge_file, 'r') as stream:
-            data_loaded = yaml.safe_load(stream)
 
-        to_merge = data_loaded['old_classes']
-        new_classes = data_loaded['new_classes']
-        
+        try:
+            with open(self.merge_file, 'r') as stream:
+                data_loaded = yaml.safe_load(stream)
+
+            to_merge = data_loaded['old_classes']
+            new_classes = data_loaded['new_classes']
+        except:
+            sys.exit("%s failed to load. Check the file path and that \"old_classes\" and \"new_classes\" are present. If not, see README for correct class_merger.yaml format") 
         self.new_cls = []
         for cls in new_classes:
             self.new_cls.append(new_classes[cls])
         
         for cls in to_merge:
             if ',' not in str(to_merge[cls]):
-                sys.exit("class_merger yaml not updated to correct format")
+                sys.exit("class_merger.yaml not in correct format. See README for further details")
             [n, merge] = str(to_merge[cls]).split(',')
             if int(merge) not in new_class_mapping:
                 new_class_mapping[int(merge)] = [cls]
@@ -91,7 +102,12 @@ class mergeClasses():
 
         if not os.path.isdir(out_folder):
             os.mkdir(out_folder)
-
+        else:
+            ow = input("WARNING: %s folder already exists. Overwrite contents? Y/N "%out_folder)
+            if ow.lower() == "y":
+                print("Overwriting..")
+            else:
+                sys.exit("ERROR: --save path already exists and overwrite NOT selected. Choose different --save path.")
         # add all labels to list
         labels_in = glob.glob(os.path.join(self.labels_in,"*.txt"))
 
@@ -129,6 +145,21 @@ class mergeClasses():
         yaml_path = os.path.join(self.save,"data.yaml")
         test_yaml_path = os.path.join(self.save,"test.yaml")
         # dictionary of {0: class0, 1: class1...}
+
+        if os.path.isfile(yaml_path):
+            ow = input("data.yaml already exists at %s. Overwrite? Y/N "%(yaml_path))
+            if ow.lower() == "y":
+                print("Overwriting data.yaml")
+            else:
+                sys.exit("ERROR: Not overwriting data.yaml. Please select different save path without exisiting yaml file.")
+        
+        if os.path.isfile(test_yaml_path):
+            ow = input("test.yaml already exists at %s. Overwrite? Y/N "%(yaml_path))
+            if ow.lower() == "y":
+                print("Overwriting test.yaml")
+            else:
+                sys.exit("ERROR: Not overwriting test.yaml. Please select different save path without exisiting yaml file.")
+   
         new_cls_enum = {k:v for k,v in enumerate(self.new_cls)}
         data = {
             "path":self.save,

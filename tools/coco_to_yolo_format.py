@@ -39,30 +39,31 @@ class COCO2YOLOBB():
         # class of each annot (STARTS FROM 1) (length of number of annots)
         # image ids - a list associating each annotation with the image (length of number of annots)
         
+        try:
+            # List all the classes
+            categories = data["categories"]
+            classes = [category["name"] for category in categories]
+            # print("all classes: ", len(classes), "\n")
+            
+            # List all the image filenames
+            images = data["images"]
+            img_names = [image["file_name"] for image in images]
+            img_size = []
+            for image in images:
+                w = image["width"]
+                h = image["height"]
+                img_size.append([w,h])
+            
+            # For each annotation, get the class, image ID and the bbox
+            annotations = data["annotations"]
 
-        # List all the classes
-        categories = data["categories"]
-        classes = [category["name"] for category in categories]
-        # print("all classes: ", len(classes), "\n")
-        
-        # List all the image filenames
-        images = data["images"]
-        img_names = [image["file_name"] for image in images]
-        img_size = []
-        for image in images:
-            w = image["width"]
-            h = image["height"]
-            img_size.append([w,h])
-        
-        # For each annotation, get the class, image ID and the bbox
-        annotations = data["annotations"]
-
-        cls = [int(annotation["category_id"])-1 for annotation in annotations]
-        img_ids = [int(annotation["image_id"])-1 for annotation in annotations]
-        bbxs = [annotation["bbox"] for annotation in annotations]
-        im_sz = [annotation["segmentation"]["size"] for annotation in annotations]
-        # print(classes, img_names, cls, img_ids, bbxs, im_sz)
-        
+            cls = [int(annotation["category_id"])-1 for annotation in annotations]
+            img_ids = [int(annotation["image_id"])-1 for annotation in annotations]
+            bbxs = [annotation["bbox"] for annotation in annotations]
+            im_sz = [annotation["segmentation"]["size"] for annotation in annotations]
+            # print(classes, img_names, cls, img_ids, bbxs, im_sz)
+        except:
+            print("ERROR: json file in wrong format - check it is downloaded from CVAT in COCO 1.0 format, from Segment Anything mask labels. ") 
         return classes, img_names, cls, img_ids, bbxs, im_sz
     
 
@@ -72,6 +73,22 @@ class COCO2YOLOBB():
         # generate yaml file with each class name
         yaml_path = os.path.join(self.save_location,"data.yaml")
         test_yaml_path = os.path.join(self.save_location,"test.yaml")
+
+        if os.path.isfile(yaml_path):
+            ow = input("data.yaml already exists at %s. Overwrite? Y/N "%(yaml_path))
+            if ow.lower() == "y":
+                print("Overwriting data.yaml")
+            else:
+                sys.exit("ERROR: Not overwriting data.yaml. Please select different save path without exisiting yaml file.")
+        
+        if os.path.isfile(test_yaml_path):
+            ow1 = input("test.yaml already exists at %s. Overwrite? Y/N "%(yaml_path))
+            if ow.lower() == "y":
+                print("Overwriting test.yaml")
+            else:
+                sys.exit("ERROR: Not overwriting test.yaml. Please select different save path without exisiting yaml file.")
+  
+
         # dictionary of {0: class0, 1: class1...}
         cls_dict = {k:v for k,v in enumerate(classes)}
 
@@ -125,10 +142,19 @@ class COCO2YOLOBB():
 
         if not os.path.isdir(out_folder):
             os.mkdir(out_folder)
+        else:
+            ow = input("WARNING: Folder %s already exists. Overwrite contents? Y/N "%(out_folder))
+            if ow.lower() == "y":
+                print("Overwriting labels")
+            else:
+                sys.exit("ERROR: Not overwriting, use different path in --save argument")
 
         # for each image, write a textfile of name image_name.txt
         # for each annotation in the image, write
         # class, bb centre x, bb centre y, bb w, bb h 
+        
+        # write data.yaml and test.yaml
+        self.write_yaml(classes)
 
     
         for i, name in enumerate(img_names):
@@ -155,7 +181,6 @@ class COCO2YOLOBB():
                 # if classes are being remapped then use the mapping (dict) to find new class
                 idx_class = cls[idx] 
                 #print(cls,idx)
-                self.write_yaml(classes)
                 [xn, yn, wn, hn] = self.bbx_converter(bbxs[idx], im_sz[idx])
                 lines.append((idx_class, xn, yn, wn, hn))
 
@@ -193,19 +218,27 @@ class COCO2YOLOBB():
     
     def run(self):
 
+
         all_in = []
+        # check if the input is a single json file or a regex
         if os.path.isfile(self.in_files):
             all_in.append(self.in_files) # glob.glob(self.in_files+'Labels/*/*/*.json')
         else:
-            all_in = glob.glob(self.in_files)
-        
+            try:
+                all_in = glob.glob(self.in_files)
+            except:
+                print("ERROR: regex to multiple jsons failed")
+
+
         summary_dict = {}
         # For each json file
         for data_path in all_in:
             # print(data_path)
-
-            f = open(data_path)
-            data = json.load(f)
+            try:
+                f = open(data_path)
+                data = json.load(f)
+            except:
+                print("ERROR: json failed to load")
             # extract the info
             classes, img_names, cls, img_ids, bbxs, im_sz = self.get_info(data)
             # print(classes)

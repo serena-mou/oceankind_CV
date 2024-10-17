@@ -361,6 +361,5 @@ python tools/label_studio_convert.py --src /Downloads/<unzipped label studio fol
 ---
 # TODO:
 
-1. throw warnings if files are being overwritten or if files are not found
-2. visualise annotations
+1. visualise annotations
 
