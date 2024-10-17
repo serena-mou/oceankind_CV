@@ -333,7 +333,7 @@ label-studio
 
 2. Follow label-studio instructions to set up project, upload data, set up labelling interface and label names, and label your data. 
 
-3. Once fully labelled, from the Project page, select Export and select YOLOv8 OBB format. 
+3. Once fully labelled, from the Project page, select Export and select YOLO format. 
 
 4. Unzip the data. 
 
@@ -359,7 +359,22 @@ python tools/label_studio_convert.py --src /Downloads/<unzipped label studio fol
 
 
 ---
-# TODO:
+# Helpers:
 
-1. visualise annotations
+To visualise bounding box annotations, use the visualise_bb_annots.py. Only the --src argument is required if the data is organised as above. If you would like to view just a smaller subset of image/label pairs, paste the desired label files into a separate folder and add the folder name to --label_folder. The img_folder can be left as default, just the images matching the label files in the smaller subset will be shown. 
+
+**Example usage**
+```bash
+python tools/visualise_bb_annots.py --src <path to dataset root dir>
+```
+
+**Options**
+- `--src str` Path to the root directory of your data
+- `--img_folder str` (Optional) If the folder of images is not the default <src>/all_images, add name of folder
+- `--label_folder str` (Optional) If the folder of labels is not the default <src>/all_labels, add name of folder
+- `--data str` (Optional) If the yaml file with class names is not the default <src>/data.yaml, add name of file
+- `--scale float` (Optional) Scale the image size up or down. Default is 0.5.
+
+**Outputs:**
+OpenCV window showing images with bounding boxes and name of classes. Press any key to go to the next image, press ESC to escape. 
 

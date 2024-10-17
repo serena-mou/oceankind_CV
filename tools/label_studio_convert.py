@@ -20,9 +20,9 @@ def arg_parse():
     parser = argparse.ArgumentParser(description='Convert from label-studio into OK_CV format')
 
     parser.add_argument("--src", dest = "src",
-            help = "Path to unzipped label-studio folder", default = None, type = str)
+            help = "Path to unzipped label-studio folder", type = str, required=True)
     parser.add_argument("--dest", dest = "dest",
-            help = "Path to save resulting files", default = None, type = str)
+            help = "Path to save resulting files", type = str, required=True)
 
     return parser.parse_args()
 
