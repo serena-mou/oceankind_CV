@@ -15,7 +15,7 @@ def arg_parse():
     """
     Parse command line arguments
     """
-    parser = argparse.ArgumentParser(description='Train YOLO V8 Model')
+    parser = argparse.ArgumentParser(description='Test YOLO Ultralytics Model')
 
     parser.add_argument("--src", dest = "src",
             help = "Test yaml describing test set", default = None, type = str)

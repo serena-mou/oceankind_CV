@@ -113,6 +113,56 @@ The data should be structured as follows:
     └── test.yaml      
 ```
 
+---
+## Free labelling software
+
+CVAT is free, to a point. For completely free labelling software, we can use label-studio (previously labelImg). label-studio does not currently support SAM so would be more suited to bounding box level annotations. It can produce segmentation, however you will need to hand paint the mask or hand draw the polygon. This method has been tested for Bounding Boxes.  
+
+1. Create a new conda instance - label-studio has different version dependencies than ultralytics. 
+
+```bash
+# If you're still in the OK_CV environment
+conda deactivate 
+
+# Install
+conda create --name label-studio
+conda activate label-studio
+conda install psycopg2
+pip install label-studio
+
+# Spin up
+label-studio
+```
+
+2. Follow label-studio instructions to set up project, upload data, set up labelling interface and label names, and label your data. 
+
+3. Once fully labelled, from the Project page, select Export and select YOLO format. 
+
+4. Unzip the data. 
+
+5. Run `label_studio_convert.py`
+
+**Example usage:**
+```bash
+python tools/label_studio_convert.py --src /Downloads/<unzipped label studio folder> --dest /Data_folder/Animals
+```
+
+**Options:**
+- `--src str` Path to unzipped label-studio folder
+- `--dest str` Path to desired dataset location
+
+**Outputs:**
+- `<dest>/all_images` Folder with all the images for the dataset 
+- `<dest>/all_labels` Folder with all the label files for the dataset 
+- `<dest>/data.yaml` YAML file for YOLO training script 
+- `<dest>/test.yaml` YAML file for YOLO test script 
+
+
+6. Follow instructions starting from `2. Split data`
+
+
+
+
 
 ## 1.5. (Optional) Merge Classes
 
@@ -308,55 +358,6 @@ python <path_to_this_repo>/training/test.py --src /Dataset/test.yaml --weights /
 
 **Outputs:**
 - `/pwd/OK_CV/name/` Model test stats and outputs
-
-
----
-## Free labelling software
-
-CVAT is free, to a point. For completely free labelling software, we can use label-studio (previously labelImg). label-studio does not currently support SAM so would be more suited to bounding box level annotations. It can produce segmentation, however you will need to hand paint the mask or hand draw the polygon. This method has been tested for Bounding Boxes.  
-
-1. Create a new conda instance - label-studio has different version dependencies than ultralytics. 
-
-```bash
-# If you're still in the OK_CV environment
-conda deactivate 
-
-# Install
-conda create --name label-studio
-conda activate label-studio
-conda install psycopg2
-pip install label-studio
-
-# Spin up
-label-studio
-```
-
-2. Follow label-studio instructions to set up project, upload data, set up labelling interface and label names, and label your data. 
-
-3. Once fully labelled, from the Project page, select Export and select YOLO format. 
-
-4. Unzip the data. 
-
-5. Run `label_studio_convert.py`
-
-**Example usage:**
-```bash
-python tools/label_studio_convert.py --src /Downloads/<unzipped label studio folder> --dest /Data_folder/Animals
-```
-
-**Options:**
-- `--src str` Path to unzipped label-studio folder
-- `--dest str` Path to desired dataset location
-
-**Outputs:**
-- `<dest>/all_images` Folder with all the images for the dataset 
-- `<dest>/all_labels` Folder with all the label files for the dataset 
-- `<dest>/data.yaml` YAML file for YOLO training script 
-- `<dest>/test.yaml` YAML file for YOLO test script 
-
-
-6. Follow instructions starting from `2. Split data`
-
 
 ---
 # Helpers:
