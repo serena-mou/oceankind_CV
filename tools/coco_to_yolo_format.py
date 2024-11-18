@@ -1,4 +1,4 @@
-#/usr/bin/env python3
+#!/usr/bin/env python3
 
 """
 Author: Serena Mou
@@ -29,7 +29,6 @@ class COCO2YOLOBB():
         #self.data = json.load(f)
         self.in_files = json_file #"/home/serena/Data/SCTLD/RAW/"
         self.save_location = save_location #"/home/serena/Data/SCTLD/Processed/"
-
 
     def get_info(self, data):
 
@@ -135,28 +134,28 @@ class COCO2YOLOBB():
 
         return [xn, yn, wn, hn]
 
-    def write_txt(self, classes, img_names, cls, img_ids, bbxs, im_sz):
+    def write_txt(self, classes, img_names, cls, img_ids, bbxs, im_sz, loop):
         
         # location to save labels
         out_folder = os.path.join(self.save_location,"all_labels")
-
-        if not os.path.isdir(out_folder):
-            os.mkdir(out_folder)
-        else:
-            ow = input("WARNING: Folder %s already exists. Overwrite contents? Y/N "%(out_folder))
-            if ow.lower() == "y":
-                print("Overwriting labels")
+        if loop == 0:
+            if not os.path.isdir(out_folder):
+                os.mkdir(out_folder)
             else:
-                sys.exit("ERROR: Not overwriting, use different path in --save argument")
+                ow = input("WARNING: Folder %s already exists. Overwrite contents? Y/N "%(out_folder))
+                if ow.lower() == "y":
+                    print("Overwriting labels")
+                else:
+                    sys.exit("ERROR: Not overwriting, use different path in --save argument")
 
-        # for each image, write a textfile of name image_name.txt
-        # for each annotation in the image, write
-        # class, bb centre x, bb centre y, bb w, bb h 
+            # for each image, write a textfile of name image_name.txt
+            # for each annotation in the image, write
+            # class, bb centre x, bb centre y, bb w, bb h 
+            
+            # write data.yaml and test.yaml
+            self.write_yaml(classes)
+
         
-        # write data.yaml and test.yaml
-        self.write_yaml(classes)
-
-    
         for i, name in enumerate(img_names):
             # textfile name 
             get_name_str = name.split('.')
@@ -232,7 +231,8 @@ class COCO2YOLOBB():
 
         summary_dict = {}
         # For each json file
-        for data_path in all_in:
+        for i,data_path in enumerate(all_in):
+            #print(all_in)
             # print(data_path)
             try:
                 f = open(data_path)
@@ -246,7 +246,7 @@ class COCO2YOLOBB():
             # input()
             ## For the first run, generate the class merger file            
 
-            self.write_txt(classes, img_names, cls, img_ids, bbxs, im_sz)
+            self.write_txt(classes, img_names, cls, img_ids, bbxs, im_sz, i)
 
             # self.write_txt(img_names, cls, img_ids, bbxs, im_sz, mapping)
             
