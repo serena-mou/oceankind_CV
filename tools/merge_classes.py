@@ -33,6 +33,7 @@ class mergeClasses():
             except:
                 sys.exit("--data has no \"names\" section of original class names")
         if new_cls is not None:
+            print(new_cls)    
             try:
                 new_cls = new_cls.split(',')
                 self.new_cls_dict = {k:v for k,v in enumerate(new_cls)}
@@ -41,7 +42,7 @@ class mergeClasses():
         self.use_case = use_case
 
     def write_class_merger(self):
-        print("Generating a class_merger.yaml file with data from %s and the new classes, [%s]\n"%(self.data_file, self.new_cls))
+        print("Generating a class_merger.yaml file with data from %s and the new classes, [%s]\n"%(self.data_file, self.new_cls_dict))
         # generate yaml file with new classes and old classes
         # for the purpose of merging classes 
         yaml_path = os.path.join(self.save,"class_merger.yaml")
@@ -254,7 +255,6 @@ def main():
     
     else:
         sys.exit("Please type G to generate a class_merger.yaml file or M to merge labels from an existing class_merger.yaml file")
-
     mc = mergeClasses(labels_in, save, merge_file, data, new_cls, use_case)
     mc.run()
     print("\nDONE")

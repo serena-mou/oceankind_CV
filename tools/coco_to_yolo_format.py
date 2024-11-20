@@ -261,7 +261,8 @@ class COCO2YOLOBB():
             #         dest = os.path.join(self.save_location,"training/all_images",img_name)
             #         shutil.copy2(src,dest)
             #     else: print("not a file", src)
-
+        
+        # print(summary_dict)
 
 def arg_parse():
     parser = argparse.ArgumentParser(description='Convert from COCO SAM annotation to YOLO format')
