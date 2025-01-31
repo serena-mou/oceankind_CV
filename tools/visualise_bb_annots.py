@@ -98,7 +98,7 @@ def main():
             im = cv2.putText(im, classes[cls],top_left, cv2.FONT_HERSHEY_SIMPLEX, 1.0, colors(cls),2)
 
         try:
-            cv2.imshow("im",im)
+            cv2.imshow(label_name,im)
             key = cv2.waitKey(0)
             if key == 27:
                 sys.exit()    

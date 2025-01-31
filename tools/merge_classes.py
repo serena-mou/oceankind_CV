@@ -93,7 +93,8 @@ class mergeClasses():
                 new_class_mapping[int(merge)] = [cls]
             else:
                 new_class_mapping[int(merge)].append(cls)
-
+        #print(new_class_mapping)
+        #input()
         return new_class_mapping
     
     def change_classes(self, mapping):

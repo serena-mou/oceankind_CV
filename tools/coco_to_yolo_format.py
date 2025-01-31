@@ -6,6 +6,7 @@ Created: 23 July 2024
 
 ===
 Converts the Segment Anything Model (SAM) masks from CVAT in COCO format into YOLO compatible bounding boxes
+If there are multiple jsons and the classes do not all match, a "all_classes_dict.yaml" will be required
 ===
 
 """
@@ -20,7 +21,7 @@ import argparse
 
 
 class COCO2YOLOBB():
-    def __init__(self, json_file, save_location):
+    def __init__(self, json_file, save_location, classes_dict):
 
         # load in the json file
         #json_file = "/home/serena/Data/SCTLD/RAW/1_100/annotations/instances_default.json" 
@@ -29,19 +30,23 @@ class COCO2YOLOBB():
         #self.data = json.load(f)
         self.in_files = json_file #"/home/serena/Data/SCTLD/RAW/"
         self.save_location = save_location #"/home/serena/Data/SCTLD/Processed/"
+        self.all_classes_dict = {}
+        if classes_dict is not None: 
+            with open(classes_dict, 'r') as f:
+                self.all_classes_dict = yaml.load(f, Loader=yaml.SafeLoader) 
 
     def get_info(self, data):
 
         # given the json file, return lists of:
-        # all the classes
+        # all the classes as a dict
         # all the image filenames
         # class of each annot (STARTS FROM 1) (length of number of annots)
         # image ids - a list associating each annotation with the image (length of number of annots)
-        
         try:
             # List all the classes
             categories = data["categories"]
             classes = [category["name"] for category in categories]
+            classes_dict = {k:v for k,v in enumerate(classes)}
             # print("all classes: ", len(classes), "\n")
             
             # List all the image filenames
@@ -61,9 +66,11 @@ class COCO2YOLOBB():
             bbxs = [annotation["bbox"] for annotation in annotations]
             im_sz = [annotation["segmentation"]["size"] for annotation in annotations]
             # print(classes, img_names, cls, img_ids, bbxs, im_sz)
+            return classes_dict, img_names, cls, img_ids, bbxs, im_sz
+
+            
         except:
             print("ERROR: json file in wrong format - check it is downloaded from CVAT in COCO 1.0 format, from Segment Anything mask labels. ") 
-        return classes, img_names, cls, img_ids, bbxs, im_sz
     
 
 
@@ -89,7 +96,10 @@ class COCO2YOLOBB():
   
 
         # dictionary of {0: class0, 1: class1...}
-        cls_dict = {k:v for k,v in enumerate(classes)}
+        if len(self.all_classes_dict.keys()) > 0:
+            cls_dict = self.all_classes_dict
+        else:
+            cls_dict = classes #{k:v for k,v in enumerate(classes)}
 
         data = {
             "path":self.save_location,
@@ -176,12 +186,18 @@ class COCO2YOLOBB():
             lines = []
 
             for idx in all_im_idx:
-                # print(idx, cls, mapping)
-                # if classes are being remapped then use the mapping (dict) to find new class
+                #print(idx)
                 idx_class = cls[idx] 
-                #print(cls,idx)
+                #print(idx_class)
+                #print(classes)
+                #print(self.all_classes_dict)
+                if len(self.all_classes_dict.keys()) < 1:
+                    full_list_class = idx_class 
+                else:
+                    full_list_class = list(self.all_classes_dict.keys())[list(self.all_classes_dict.values()).index(classes[idx_class])]
+                #input()
                 [xn, yn, wn, hn] = self.bbx_converter(bbxs[idx], im_sz[idx])
-                lines.append((idx_class, xn, yn, wn, hn))
+                lines.append((full_list_class, xn, yn, wn, hn))
 
             
             out_path = os.path.join(out_folder,out_txt_name) 
@@ -202,16 +218,18 @@ class COCO2YOLOBB():
 
     def label_summary(self, classes, img_names, img_ids, cls, summary_dict):
         #print(classes, img_names, cls)
-        for i in classes:
+        for i in classes.values():
             if i not in summary_dict:
                 summary_dict[i] = 0
+        #print(summary_dict)
+    #input()
 
         for i, cls_idx in enumerate(cls): 
             summary_dict[classes[cls_idx]] +=1
 
             # if classes[cls_idx-1] == "remove_Orbicellla_y_SCTLD":
             #         print(img_names[img_ids[i]-1])
-
+        return summary_dict
         #print(cls)
         #input()
     
@@ -239,8 +257,11 @@ class COCO2YOLOBB():
                 data = json.load(f)
             except:
                 print("ERROR: json failed to load")
-            # extract the info
+            # extract the infoi
+            #print(self.classes_dict)
             classes, img_names, cls, img_ids, bbxs, im_sz = self.get_info(data)
+            #print(classes)
+            #input()
             # print(classes)
             # print(img_names)
             # input()
@@ -251,8 +272,9 @@ class COCO2YOLOBB():
             # self.write_txt(img_names, cls, img_ids, bbxs, im_sz, mapping)
             
             ## Label summary
-            # self.label_summary(classes, img_names, img_ids, cls, summary_dict)
-            # self.write_label_summary(summary_dict) 
+            #summary_dict = self.label_summary(classes, img_names, img_ids, cls, summary_dict)
+        
+        #self.write_label_summary(summary_dict) 
             
             ## Use this section to move the images that are referenced in the jsons 
             # for img_name in img_names:
@@ -273,6 +295,9 @@ def arg_parse():
     parser.add_argument("--save", dest = "save_location",
             help = "Path to save labels", default = None, type = str, required=True)
     
+    parser.add_argument("--classes", dest = "classes_dict",
+            help = "Path to all_classes yaml file", 
+            default = None, type = str, required=False)
     return parser.parse_args()
 
 
@@ -281,7 +306,7 @@ def main():
 
     #json_file = input("Path to JSON file or regex to files: ")
     #save_location = input("Path to save labels: ")
-    test = COCO2YOLOBB(args.json_file, args.save_location)
+    test = COCO2YOLOBB(args.json_file, args.save_location, args.classes_dict)
     test.run()
     print("DONE")
 
