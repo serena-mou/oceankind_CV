@@ -21,6 +21,8 @@ def arg_parse():
             help = "Data yaml describing dataset", default = None, type = str)
     parser.add_argument("--name", dest = "name",
             help = "Name for training outputs", default = None, type = str)
+    parser.add_argument("--classes", dest = "classes",
+            help = "List of classes to train as numbers listed in data.yaml. Separate with commas ex 0,1,2", default = None, type = str)
 
     return parser.parse_args()
 
@@ -38,12 +40,16 @@ def main():
         sys.exit()
 
     # Select pretrained model
-    model = YOLO('yolov11m.pt') # Pick desired default model or used pre-trained model weights. See https://docs.ultralytics.com/models/yolov8/#performance-metrics
-
+    model = YOLO('yolov8m.pt') # Pick desired default model or used pre-trained model weights. See https://docs.ultralytics.com/models/yolov8/#performance-metrics
+    if args.classes is not None:
+        arg_cls = args.classes.split(',')
+        arg_cls = [int(x) for x in arg_cls]
+    else:
+        arg_cls = None
     # Start training
     metrics = model.train(data = args.src,
             epochs = 500,
-            classes = [2],
+            classes = arg_cls,
             patience = 50,
             batch = -1,
             imgsz = 512,
