@@ -38,12 +38,12 @@ def main():
         sys.exit()
 
     # Select pretrained model
-    model = YOLO('yolov8x.pt') # Pick desired default model or used pre-trained model weights. See https://docs.ultralytics.com/models/yolov8/#performance-metrics
+    model = YOLO('yolov11m.pt') # Pick desired default model or used pre-trained model weights. See https://docs.ultralytics.com/models/yolov8/#performance-metrics
 
     # Start training
     metrics = model.train(data = args.src,
             epochs = 500,
-            classes = [0,1,2],
+            classes = [2],
             patience = 50,
             batch = -1,
             imgsz = 512,
