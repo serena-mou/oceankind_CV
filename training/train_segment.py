@@ -43,9 +43,9 @@ def main():
     # Start training
     metrics = model.train(data = args.src,
             epochs = 500,
-            patience = 50,
+            patience = 100,
             batch = -1,
-            imgsz = 512,
+            imgsz = 640,
             save = True,
             device = 0,
             workers = 12,

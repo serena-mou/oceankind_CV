@@ -5,7 +5,7 @@ Author: Serena Mou
 Created:  17 October 2024
 
 ===
-Visualise YOLO bounding box annotations
+Visualise YOLO segmentation annotations
 ===
 
 """
@@ -15,12 +15,13 @@ import os
 import yaml
 import glob
 import sys
+import numpy as np
 
 def arg_parse():
     """
     Parse command line arguments
     """
-    parser = argparse.ArgumentParser(description='Visualise bounding box annotations')
+    parser = argparse.ArgumentParser(description='Visualise segmentation annotations')
 
     parser.add_argument("--src", dest = "src",
             help = "Path to dataset root folder", default = None, type = str, required=True)
@@ -36,23 +37,17 @@ def arg_parse():
 
     return parser.parse_args()
 
-def bbx_converter(box, im_sz):
+def seg_converter(seg, im_sz):
 ## Convert box in yolo format to cv2 rectangle format (top left x, top left y), (bottom right x, bottom right y) in pixels
-    data = box.split(" ")
-    xc = float(data[0])
-    yc = float(data[1])
-    bw = float(data[2])
-    bh = float(data[3])
-    h = int(im_sz[0])
-    w = int(im_sz[1])
-
-    tlx = int((xc*w)-(0.5*bw*w))
-    tly = int((yc*h)-(0.5*bh*h))
-
-    brx = int((xc*w)+(0.5*bw*w))
-    bry = int((yc*h)+(0.5*bh*h))
-
-    return (tlx,tly),(brx,bry)
+    seg = seg.split(' ')
+    # print(im_sz)
+    scale = np.array([im_sz[1], im_sz[0]])
+    # print(scale)
+    data = [float(s) for s in seg]
+    l = int(len(data)/2)
+    data = np.reshape(data,(l,2))*scale
+    # print(data.astype(int))
+    return data.astype(int)
 
 def colors(cls):
     # 22 distinct colors. if class number is more than 22, wrap around
@@ -73,11 +68,12 @@ def main():
     classes = data_loaded["names"]
 
     # load labels
-    labels = glob.glob(os.path.join(args.src, args.label_folder,'*'))
+    labels = sorted(glob.glob(os.path.join(args.src, args.label_folder,'*')))
     print("Press any key to go to the next image, press ESC to escape.")
     # for each label
     # for label in labels:
     for i in range(0,len(labels)):
+    # for i in range(len(labels)):
         label = labels[i]
         # get matching image
 
@@ -85,6 +81,7 @@ def main():
         label_name = label.split('/')[-1]
         img_name = label_name.split('.')[0]
         img_path = glob.glob(os.path.join(args.src, args.img_folder,img_name+"*"))
+        print(label)
         if len(img_path) > 1:
             print("WARNING: label name matched to more than one img")
         im = cv2.resize(cv2.imread(img_path[0]), (0,0), fx=args.scale, fy=args.scale)
@@ -92,12 +89,15 @@ def main():
         # for each label in the label file, draw a box and the class
         f = open(label,"r")
         for line in f:
+            line.rstrip()
             first_space = line.find(" ")
             cls = int(line[0:first_space])
             box = line[first_space+1:]
-            top_left, bottom_right = bbx_converter(box, im.shape)
-            im = cv2.rectangle(im, top_left, bottom_right, colors(cls), 2)
-            im = cv2.putText(im, classes[cls],top_left, cv2.FONT_HERSHEY_SIMPLEX, 1.0, colors(cls),2)
+            # print(label_name)
+            seg = seg_converter(box, im.shape)
+            for s in seg:
+                cv2.circle(im, (s[0],s[1]),5,color=colors(3),thickness=-1)
+                # im[s[0],s[1],:] = colors(cls)
 
         try:
             cv2.imshow(label_name,im)

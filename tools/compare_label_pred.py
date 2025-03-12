@@ -15,6 +15,7 @@ import os
 import yaml
 import glob
 import sys
+from ultralytics import YOLO
 
 def arg_parse():
     """
@@ -32,6 +33,10 @@ def arg_parse():
             help = "Name of yaml file with list of classes", default = "data.yaml", type = str)
     parser.add_argument("--scale", dest = "scale", 
             help = "Fraction to scale images to. Default 0.5", default = 0.5, type = float)
+    parser.add_argument("--save", dest = "save", 
+            help = "Save ims or just view. Default False", default = False, type = bool)
+    parser.add_argument("--model", dest = "model", 
+            help = "Model path for predictions", type = str)
 
 
     return parser.parse_args()
@@ -75,9 +80,21 @@ def main():
     # load labels
     labels = glob.glob(os.path.join(args.src, args.label_folder,'*'))
     print("Press any key to go to the next image, press ESC to escape.")
+    
+    # create save folder
+    if args.save:
+        save_path_pred = os.path.join(args.src,"vis_output","11m")
+        save_path_label = os.path.join(args.src,"vis_output","label")
+        os.makedirs(save_path_pred, exist_ok=True)
+        os.makedirs(save_path_label, exist_ok=True)
+
+    # load model
+    model = YOLO(args.model)
+    
     # for each label
     # for label in labels:
-    for i in range(0,len(labels)):
+    # for i in range(0,len(labels),10):
+    for i in range(len(labels)):
         label = labels[i]
         # get matching image
 
@@ -87,8 +104,13 @@ def main():
         img_path = glob.glob(os.path.join(args.src, args.img_folder,img_name+"*"))
         if len(img_path) > 1:
             print("WARNING: label name matched to more than one img")
-        im = cv2.resize(cv2.imread(img_path[0]), (0,0), fx=args.scale, fy=args.scale)
+        im = cv2.imread(img_path[0])
+        im_scale = cv2.resize(im, (0,0), fx=args.scale, fy=args.scale)
 
+        # run model
+        results = model.predict(im)
+        pred_im = results[0].plot()
+        #pred_rgb = cv2.cvtColor(pred_im, cv2.COLOR_BGR2RGB)
         # for each label in the label file, draw a box and the class
         f = open(label,"r")
         for line in f:
@@ -96,15 +118,19 @@ def main():
             cls = int(line[0:first_space])
             box = line[first_space+1:]
             top_left, bottom_right = bbx_converter(box, im.shape)
-            im = cv2.rectangle(im, top_left, bottom_right, colors(cls), 2)
-            im = cv2.putText(im, classes[cls],top_left, cv2.FONT_HERSHEY_SIMPLEX, 1.0, colors(cls),2)
+            im = cv2.rectangle(im, top_left, bottom_right, colors(cls), 28)
+            # im = cv2.putText(im, classes[cls],top_left, cv2.FONT_HERSHEY_SIMPLEX, 5.0, colors(cls),28)
 
         try:
-            cv2.imshow(label_name,im)
-            key = cv2.waitKey(0)
-            if key == 27:
-                sys.exit()    
-            cv2.destroyAllWindows()
+            if args.save:
+                cv2.imwrite(os.path.join(save_path_pred,img_name+'.png'),pred_im)
+                #cv2.imwrite(os.path.join(save_path_label,img_name+".png"),im)
+                
+            # cv2.imshow(label_name,im)
+            # key = cv2.waitKey(0)
+            # if key == 27:
+            #     sys.exit()    
+            # cv2.destroyAllWindows()
         except KeyboardInterrupt:
             sys.exit()
 if __name__=='__main__':

@@ -14,6 +14,7 @@ import shutil
 import random
 import argparse
 from sklearn.model_selection import train_test_split
+import glob
 
 random.seed(1)
 
@@ -50,7 +51,28 @@ def main():
     label_source_dir = os.path.join(args.src_dir, "all_labels")
     if os.path.exists(image_source_dir) == False:
         raise FileNotFoundError("Source directory {} does not exist".format(label_source_dir))
+
+    # Check labels and images match - if an image has no label file, generate an empty one. If a label has no image, throw a warning
+    all_ims = glob.glob(os.path.join(image_source_dir,"*"))
+    all_labs = glob.glob(os.path.join(label_source_dir,"*"))
+
+    # remove extensions
+    all_ims = [im.split("/")[-1].split('.')[0] for im in all_ims]
+    all_labs = [lab.split("/")[-1].split('.')[0] for lab in all_labs]
+    # print(all_ims)
+    # print(all_labs)
+    for im in all_ims:
+        if im not in all_labs:
+            print("Label file does not exist for %s, creating empty label"%im)
+            empty_label = os.path.join(label_source_dir,im+".txt")
+            open(empty_label, 'a').close()
     
+    for lab in all_labs:
+        if lab not in all_ims:
+            print("WARNING: Label file %s exists with no matching image..."%lab)
+
+    # lab_in_ims = [lab in all_ims for lab in all_labs]
+
     # Create output directory paths
     train_out_dir = os.path.join(args.src_dir, "train")
     valid_out_dir = os.path.join(args.src_dir, "valid")

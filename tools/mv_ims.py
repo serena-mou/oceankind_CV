@@ -4,14 +4,14 @@ import shutil
 import glob
 import os
 
-all_im = glob.glob('/home/serena/Data/SCTLD/July/RAW/Images/Images1_annotated/*')
-labels = glob.glob('/home/serena/Data/SCTLD/November/Processed/brain_corals/all_labels/*.txt')
+all_im = glob.glob('/home/serena/Data/xenia/Raw/unzipped/*/images/*/*')
+labels = glob.glob('/home/serena/Data/xenia/Processed/all_labels/*.txt')
 
-out = '/home/serena/Data/SCTLD/November/Processed/brain_corals/all_images/'
+out = '/home/serena/Data/xenia/Processed/all_images/'
 print(len(all_im))
 print(len(labels))
 
-
+# input()
 for label in labels:
     label_name = label.split('/')[-1]
     
@@ -26,10 +26,10 @@ for label in labels:
         
         
         if im_name == label_name:
-            print("found", im)
-            break
+            # print("found", im)
+            #break
             # print(os.path.join(out,im_name_ex))
             #input()
-            #shutil.copy(im,os.path.join(out,im_name_ex))
-        if i == len(all_im)-1:
-            print("not found", label)
+            shutil.copy(im,os.path.join(out,im_name_ex))
+        # if i == len(all_im)-1:
+            # print("not found", label)
