@@ -23,6 +23,8 @@ def arg_parse():
             help = "Name for training outputs", default = None, type = str)
     parser.add_argument("--classes", dest = "classes",
             help = "List of classes to train as numbers listed in data.yaml. Separate with commas ex 0,1,2", default = None, type = str)
+    parser.add_argument("--pretrain", dest = "pretrain",
+            help = "Pretrained model to load. Can load a different model structure or a previously trained model. Default is yolo11m.", default = "yolo11m.pt", type = str)
 
     return parser.parse_args()
 
@@ -40,7 +42,7 @@ def main():
         sys.exit()
 
     # Select pretrained model
-    model = YOLO('yolov8m.pt') # Pick desired default model or used pre-trained model weights. See https://docs.ultralytics.com/models/yolov8/#performance-metrics
+    model = YOLO(args.pretrain) # Pick desired default model or used pre-trained model weights. See https://docs.ultralytics.com/models/yolov8/#performance-metrics
     if args.classes is not None:
         arg_cls = args.classes.split(',')
         arg_cls = [int(x) for x in arg_cls]
@@ -52,7 +54,7 @@ def main():
             classes = arg_cls,
             patience = 50,
             batch = -1,
-            imgsz = 512,
+            imgsz = 640,
             save = True,
             device = 0,
             workers = 12,
@@ -73,7 +75,7 @@ def main():
             kobj = 1.0,				# (float) keypoint obj loss gain
             label_smoothing = 0.0,			# (float) label smoothing (fraction)
             nbs = 64,				# (int) nominal batch size
-            hsv_h = 0.2,				# (float) image HSV-Hue augmentation (fraction)
+            hsv_h = 0.5,				# (float) image HSV-Hue augmentation (fraction)
             hsv_s = 0.3,				# (float) image HSV-Saturation augmentation (fraction)
             hsv_v = 0.3,				# (float) image HSV-Value augmentation (fraction)
             degrees = 0.0,				# (float) image rotation (+/- deg)

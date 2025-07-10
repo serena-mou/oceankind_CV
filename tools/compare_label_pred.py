@@ -5,7 +5,7 @@ Author: Serena Mou
 Created:  17 October 2024
 
 ===
-Visualise YOLO bounding box annotations
+Visualise and save labels from YOLO model
 ===
 
 """
@@ -83,10 +83,8 @@ def main():
     
     # create save folder
     if args.save:
-        save_path_pred = os.path.join(args.src,"vis_output","11m")
-        save_path_label = os.path.join(args.src,"vis_output","label")
+        save_path_pred = os.path.join(args.src,"vis_output","model")
         os.makedirs(save_path_pred, exist_ok=True)
-        os.makedirs(save_path_label, exist_ok=True)
 
     # load model
     model = YOLO(args.model)
@@ -112,15 +110,6 @@ def main():
         pred_im = results[0].plot()
         #pred_rgb = cv2.cvtColor(pred_im, cv2.COLOR_BGR2RGB)
         # for each label in the label file, draw a box and the class
-        f = open(label,"r")
-        for line in f:
-            first_space = line.find(" ")
-            cls = int(line[0:first_space])
-            box = line[first_space+1:]
-            top_left, bottom_right = bbx_converter(box, im.shape)
-            im = cv2.rectangle(im, top_left, bottom_right, colors(cls), 28)
-            # im = cv2.putText(im, classes[cls],top_left, cv2.FONT_HERSHEY_SIMPLEX, 5.0, colors(cls),28)
-
         try:
             if args.save:
                 cv2.imwrite(os.path.join(save_path_pred,img_name+'.png'),pred_im)

@@ -156,7 +156,7 @@ class mergeClasses():
                 sys.exit("ERROR: Not overwriting data.yaml. Please select different save path without exisiting yaml file.")
         
         if os.path.isfile(test_yaml_path):
-            ow = input("test.yaml already exists at %s. Overwrite? Y/N "%(yaml_path))
+            ow = input("test.yaml already exists at %s. Overwrite? Y/N "%(test_yaml_path))
             if ow.lower() == "y":
                 print("Overwriting test.yaml")
             else:

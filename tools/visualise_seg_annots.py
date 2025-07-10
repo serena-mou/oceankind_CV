@@ -81,7 +81,7 @@ def main():
         label_name = label.split('/')[-1]
         img_name = label_name.split('.')[0]
         img_path = glob.glob(os.path.join(args.src, args.img_folder,img_name+"*"))
-        print(label)
+        print(img_path)
         if len(img_path) > 1:
             print("WARNING: label name matched to more than one img")
         im = cv2.resize(cv2.imread(img_path[0]), (0,0), fx=args.scale, fy=args.scale)

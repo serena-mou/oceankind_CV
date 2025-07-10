@@ -168,13 +168,13 @@ class COCO2YOLOBB():
         
         for i, name in enumerate(img_names):
             # textfile name 
-            get_name_str = name.split('.')
-            if len(get_name_str)>2:
-                print("Image name not able to be processed")
-                print(name)
-            else:
-                out_txt_name = get_name_str[0]+'.txt'
-                # print(out_txt_name)
+            get_name_str_end = name.rfind('.')
+            # if len(get_name_str)>2:
+            #     print("Image name not able to be processed")
+            #     print(name)
+            # else:
+            out_txt_name = name[0:get_name_str_end]+ '.txt'
+            #print(out_txt_name)
 
             # get the indexes of all annotations in this image
             all_im_idx = [j for j in range(len(img_ids)) if img_ids[j] == i]
@@ -269,12 +269,11 @@ class COCO2YOLOBB():
 
             self.write_txt(classes, img_names, cls, img_ids, bbxs, im_sz, i)
 
-            # self.write_txt(img_names, cls, img_ids, bbxs, im_sz, mapping)
             
             ## Label summary
             #summary_dict = self.label_summary(classes, img_names, img_ids, cls, summary_dict)
         
-        #self.write_label_summary(summary_dict) 
+        self.write_label_summary(summary_dict) 
             
             ## Use this section to move the images that are referenced in the jsons 
             # for img_name in img_names:
