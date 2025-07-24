@@ -1,9 +1,11 @@
 from ultralytics import YOLO 
-model = YOLO("/home/serena/Data/Fish/training/fish_all_11m/weights/best.pt")    # pretrained YOLOv8n model 
-results = model.predict(source="/home/serena/Downloads/GX014902.MP4",
-                        show=False,
-                        vid_stride=3,
+model = YOLO("/home/serena/Data/Urchins/OK_CV/urchin_6/weights/best.pt")    # pretrained YOLOv8n model 
+results = model.track(source="/home/serena/Data/Urchins/videos/GH011277.MP4",
+                        show=True,
+                        conf=0.3,
+                        iou=0.5,
+                        #vid_stride=3,
                         device=0, 
-                        save=True,       
-                        save_txt=True ) 
+                        save=True)#,       
+                        #save_txt=True ) 
 
