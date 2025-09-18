@@ -20,7 +20,9 @@ def arg_parse():
     parser.add_argument("--src", dest = "src",
             help = "Test yaml describing test set", default = None, type = str)
     parser.add_argument("--weights", dest = "weights",
-            help = "Model weights to evaluate", default = None, type = str),
+            help = "Model weights to evaluate", default = None, type = str)
+    parser.add_argument("--classes", dest = "classes",
+            help = "List of classes to train as numbers listed in data.yaml. Separate with commas ex 0,1,2", default = None, type = str)
     parser.add_argument("--name", dest = "name",
             help = "Name for training outputs", default = None, type = str)
 
@@ -38,13 +40,18 @@ def main():
     if args.weights is None:
         print("ERROR: Model weights must be provided with --weights! Exiting...\n")
         sys.exit()
-
+    if args.classes is not None:
+        arg_cls = args.classes.split(',')
+        arg_cls = [int(x) for x in arg_cls]
+    else:
+        arg_cls = None
     # Select pretrained model
     model = YOLO(args.weights)
 
     # Test model
     metrics = model.val(data = args.src,
             project = 'OK_CV',
+            classes = arg_cls,
             name = args.name
     )
 

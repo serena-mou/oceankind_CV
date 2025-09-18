@@ -1,9 +1,24 @@
 from ultralytics import YOLO 
-model = YOLO("/home/serena/repos/oceankind_CV/training/urchin/GB_1_2/weights/best.pt")    # pretrained YOLOv8n model 
-results = model.predict(source="/home/serena/Data/urchins/2025_urchin_data/160625_GaboIs/1606_GI_1/",
+import argparse
+
+
+
+parser = argparse.ArgumentParser(description='Run a pretrained model on a source')
+ 
+parser.add_argument("--src", dest = "src",
+        help = "Source directory to parse", default = None, type = str)
+parser.add_argument("--model", dest = "model",
+        help = "Path to model", default = None, type = str)
+parser.add_argument("--name", dest = "name",
+        help = "Name output folder", default = None, type = str)
+
+args = parser.parse_args()
+
+model = YOLO(args.model)    # pretrained YOLOv8n model 
+results = model.predict(source=args.src,
                         show=False,
-                        classes = [0],
-                        name="1606GI1",
+                        classes = None,
+                        name=args.name,
                         conf=0.5,
                         device=0, 
                         save=True,       

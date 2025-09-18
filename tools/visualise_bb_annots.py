@@ -83,7 +83,8 @@ def main():
 
         # img name
         label_name = label.split('/')[-1]
-        img_name = label_name.split('.')[0]
+        img_name = label_name[:-4]#label_name.split('.')[0]
+        print(img_name)
         img_path = glob.glob(os.path.join(args.src, args.img_folder,img_name+"*"))
         if len(img_path) > 1:
             print("WARNING: label name matched to more than one img")
@@ -100,6 +101,7 @@ def main():
             im = cv2.putText(im, classes[cls],top_left, cv2.FONT_HERSHEY_SIMPLEX, 1.0, colors(cls),2)
 
         try:
+            #cv2.imwrite(os.path.join(args.src,"vis",img_name+".png"),im)
             cv2.imshow(label_name,im)
             key = cv2.waitKey(0)
             if key == 27:

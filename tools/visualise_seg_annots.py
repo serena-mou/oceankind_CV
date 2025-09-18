@@ -16,6 +16,7 @@ import yaml
 import glob
 import sys
 import numpy as np
+from ultralytics.data.utils import visualize_image_annotations
 
 def arg_parse():
     """
@@ -69,7 +70,7 @@ def main():
 
     # load labels
     labels = sorted(glob.glob(os.path.join(args.src, args.label_folder,'*')))
-    print("Press any key to go to the next image, press ESC to escape.")
+    print("Press \"q\" to go to the next image, press ESC to escape.")
     # for each label
     # for label in labels:
     for i in range(0,len(labels)):
@@ -79,8 +80,12 @@ def main():
 
         # img name
         label_name = label.split('/')[-1]
-        img_name = label_name.split('.')[0]
+        img_name = label_name[:-4]
         img_path = glob.glob(os.path.join(args.src, args.img_folder,img_name+"*"))
+        #if len(img_path) > 1:
+        #    print("WARNING: label name matched to more than one img")
+        #else:
+        #    visualize_image_annotations(img_path[0], label, classes)
         print(img_path)
         if len(img_path) > 1:
             print("WARNING: label name matched to more than one img")
@@ -96,7 +101,7 @@ def main():
             # print(label_name)
             seg = seg_converter(box, im.shape)
             for s in seg:
-                cv2.circle(im, (s[0],s[1]),5,color=colors(3),thickness=-1)
+                cv2.circle(im, (s[0],s[1]),1,color=colors(0),thickness=-1)
                 # im[s[0],s[1],:] = colors(cls)
 
         try:
