@@ -1,13 +1,29 @@
+# Draw a line on a video and save output video. Used for manually counting objects in a video
+# Wriiten: Serena Mou 
+# Date:    9/9/25
+
 import os
 os.environ["OPENCV_FFMPEG_READ_ATTEMPTS"] = str(2**18)
 
 import cv2
 import numpy as np
+import argparse
+
+
+parser = argparse.ArgumentParser(description='Draw a line on a video and save. ')
+ 
+parser.add_argument("--video", dest = "video",
+        help = "Path to video", default = None, type = str)
+parser.add_argument("--pixels", dest = "pixels",
+        help = "Number of pixels from the bottom to draw line. Default 300", default = 300, type = int)
+
+args = parser.parse_args()
+
 save = True
-src = "/home/serena/Data/Urchins/manual_count/GH016323.MP4"
+src = args.video
 cap = cv2.VideoCapture(src)
 name = "line"
-pix_from_bottom = 300
+pix_from_bottom = args.pixels
 color = (10,10,255)
 if save:
     save_name = src.split('/')

@@ -88,6 +88,8 @@ def main():
         img_path = glob.glob(os.path.join(args.src, args.img_folder,img_name+"*"))
         if len(img_path) > 1:
             print("WARNING: label name matched to more than one img")
+        if len(img_path) == 0:
+            continue
         im = cv2.resize(cv2.imread(img_path[0]), (0,0), fx=args.scale, fy=args.scale)
 
         # for each label in the label file, draw a box and the class

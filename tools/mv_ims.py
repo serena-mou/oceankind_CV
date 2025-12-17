@@ -1,16 +1,46 @@
-# move select image/label pairs into another folder
-
 #!/usr/bin/env python3
+'''
+Iterate through image/label pairs and copy/paste image/labels that contain specific classes into a separate location
+
+
+Written by: Serena Mou
+Date:       12/9/25
+'''
+
 
 import shutil
 import glob
 import os
 import re
+import argparse
 
-all_im = glob.glob('/home/serena/Data/Fish/Raw/AUG25/images/*/*')
-labels = glob.glob('/home/serena/Data/Fish/Raw/AUG25/labels/*/*.txt')
+parser = argparse.ArgumentParser(
+        description='Copy paste only image/label pairs with specific classes')
 
-out = '/home/serena/Data/Fish/Processed/AUG25/ONLY_EPST/'
+parser.add_argument("--classes", dest = "classes",
+        help = "The class ids of classes to keep, separated by commas. Ex: 0,1,2", 
+        default = None, type = str, required=True)
+
+parser.add_argument("--images_in", dest = "images_in",
+        help = "Path to folder of images", 
+        default = None, type = str, required=True)
+
+parser.add_argument("--labels_in", dest = "labels_in",
+        help = "Path to folder of labels", 
+        default = None, type = str, required=True)
+
+parser.add_argument("--save", dest = "save",
+        help = "Path to folder to save subset of label/image pairs", 
+        default = None, type = str, required=True)
+
+
+args = parser.parse_args()
+
+all_im = glob.glob(os.path.join(args.images_in,'*'))
+labels = glob.glob(os.path.join(args.labels_in,'*.txt'))
+
+out = args.save
+copy_cls = args.classes.split(',')
 
 count_copy = 0
 count = 0
@@ -28,7 +58,6 @@ for label in labels:
         first_space = line.find(" ")
         cls = int(line[0:first_space]) 
     # classes of interest
-    copy_cls = ["1", "2", "3", "4"]
     if str(cls) in copy_cls:
         #print("match: ",label)
         count_copy += 1

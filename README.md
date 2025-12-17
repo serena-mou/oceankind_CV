@@ -327,7 +327,7 @@ Edit the `training/train.py` to the parameters you need, then run **from the fol
 
 **Example usage:**
 ```bash
-python <path_to_this_repo>/training/train.py --src /Dataset/data.yaml --name Animal_Train
+python <path_to_this_repo>/training/train.py --src /Dataset/data.yaml --name Animal_Train --classes 1,4,5 --pretrain <path to pretrained weights>/best.pt
 ```
 ***The outputs will be saved to the pwd (present working directory- path the script is being run from).***
 
@@ -335,6 +335,8 @@ python <path_to_this_repo>/training/train.py --src /Dataset/data.yaml --name Ani
 **Options:**
 - `--src str` Source YOLO yaml file describing train dataset
 - `--name str` Model name for saving
+- `--classes str` List of classes to train on. Skip if using all classes
+- `--pretrain str` Path to pretrained model or existing yolo models. Default is yolo11m.
 
 **Outputs:**
 - `/pwd/OK_CV/name/` Model training stats and outputs

@@ -1,3 +1,6 @@
+# Run model on a source, can be a folder of images or video file
+
+
 from ultralytics import YOLO 
 import argparse
 

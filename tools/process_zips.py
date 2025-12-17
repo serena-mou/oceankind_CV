@@ -1,10 +1,26 @@
-# Process the zip files into a useable format
+'''
+For processing lots of zip files downloaded from CVAT in COCO 1.0 format.
+Takes all zip files in a folder, unzip and process the files into a useable format
+
+Written by: Serena Mou
+Date:       30/11/24
+
+'''
 
 import shutil
 import glob
 import os
+import argparse
 
-root_path = "/home/serena/Data/SCTLD/Jan25/RAW/"
+parser = argparse.ArgumentParser(description='Unzip all COCO 1.0 files in a folder, save contents into separate images/labels folders')
+ 
+parser.add_argument("--root", dest = "root",
+        help = "Path to folder where all zip files reside", default = None, type = str)
+
+args = parser.parse_args()
+
+
+root_path = args.root
 zips_path = glob.glob(os.path.join(root_path,"*.zip"))
 img_path = os.path.join(root_path,"images")
 annot_path = os.path.join(root_path,"labels")

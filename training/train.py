@@ -75,9 +75,9 @@ def main():
             kobj = 1.0,				# (float) keypoint obj loss gain
             label_smoothing = 0.0,			# (float) label smoothing (fraction)
             nbs = 64,				# (int) nominal batch size
-            hsv_h = 0.3,				# (float) image HSV-Hue augmentation (fraction)
-            hsv_s = 0.2,				# (float) image HSV-Saturation augmentation (fraction)
-            hsv_v = 0.2,				# (float) image HSV-Value augmentation (fraction)
+            hsv_h = 0.1,				# (float) image HSV-Hue augmentation (fraction)
+            hsv_s = 0.1,				# (float) image HSV-Saturation augmentation (fraction)
+            hsv_v = 0.1,				# (float) image HSV-Value augmentation (fraction)
             degrees = 0.0,				# (float) image rotation (+/- deg)
             translate = 0.0,			# (float) image translation (+/- fraction)
             scale = 0.2,				# (float) image scale (+/- gain)

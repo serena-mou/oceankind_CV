@@ -1,3 +1,5 @@
+# Run model and tracker on a video
+
 import os
 os.environ["OPENCV_FFMPEG_READ_ATTEMPTS"] = str(2**18)
 
@@ -92,16 +94,15 @@ while cap.isOpened():
                 # Draw the tracking lines
                 points = np.hstack(track).astype(np.int32).reshape((-1, 1, 2))
                 cv2.polylines(frame, [points], isClosed=False, color=color, thickness=10)
-        cv2.putText(frame, "COUNT: %i"%len(count), (5,150), cv2.FONT_HERSHEY_SIMPLEX, 3, (0,0,255), 10 )
+        cv2.putText(frame, "COUNT: %i"%len(count), (5,50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0,0,255), 2 )
         
         print("COUNT: ",len(count))
         # Display the annotated frame
         if args.show:
-            cv2.imshow("YOLO11 Tracking", cv2.resize(frame, (0,0), fx=0.4, fy=0.4))
+            cv2.imshow("YOLO11 Tracking", cv2.resize(frame, (0,0), fx=0.8, fy=0.8))
 
         if args.save:
             out.write(frame)
-
         # Break the loop if 'q' is pressed
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break

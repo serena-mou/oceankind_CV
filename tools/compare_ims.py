@@ -1,13 +1,28 @@
 #!/usr/bin/env python3
 
+'''
+Prints out all labels that don't match images
+Written by: Serena Mou
+Date:       17/9/25
+'''
+
 import glob
 import os
+import argparse
 
-sub_ims = glob.glob('/home/serena/Data/SCTLD/November/RAW/images/*')
-all_labels = glob.glob('/home/serena/Data/SCTLD/November/Processed/brain_corals/all_labels/*.txt')
+parser = argparse.ArgumentParser(description='Compare labels to images and print labels with no matching image')
+ 
+parser.add_argument("--image_folder", dest = "image_folder",
+        help = "Path to folder of images", default = None, type = str)
+parser.add_argument("--label_folder", dest = "label_folder",
+        help = "Path to folder of labels", default = None, type = str)
+args = parser.parse_args()
 
-print(len(sub_ims))
-print(len(all_labels))
+sub_ims = glob.glob(os.path.join(args.image_folder,'*'))
+all_labels = glob.glob(os.path.join(args.label_folder,'*.txt'))
+
+print("Number of images: ",len(sub_ims))
+print("Number of labels: ",len(all_labels))
 
 label_list = []
 im_list = []
@@ -33,7 +48,10 @@ for label in label_list:
     if label not in im_list:
         not_im.append(label)
 
-print(sorted(not_im), len(not_im))
+
+print("Labels with no image match:")
+print(sorted(not_im))
+print("Number of labels with no image match: ", len(not_im))
 ''' 
 if im_name == label_name:
     print("found", im, label)
