@@ -53,12 +53,28 @@ def main():
         raise FileNotFoundError("Source directory {} does not exist".format(label_source_dir))
 
     # Check labels and images match - if an image has no label file, generate an empty one. If a label has no image, throw a warning
-    all_ims = glob.glob(os.path.join(image_source_dir,"*"))
-    all_labs = glob.glob(os.path.join(label_source_dir,"*"))
+    all_images = glob.glob(os.path.join(image_source_dir,"*"))
+    all_labels = glob.glob(os.path.join(label_source_dir,"*"))
 
     # remove extensions
-    all_ims = [im.split("/")[-1].split('.')[0] for im in all_ims]
-    all_labs = [lab.split("/")[-1].split('.')[0] for lab in all_labs]
+    all_ims = []
+    all_labs = []
+ 
+    for img in all_images:
+        img_name = img.split('/')[-1]
+        idx = img_name.rfind('.')
+        img_name = img_name[0:idx]
+        all_ims.append(img_name)
+
+
+    for label in all_labels:
+        label_name = label.split('/')[-1]
+        idx = label_name.rfind('.') 
+        label_name = label_name[0:idx]
+        all_labs.append(label_name)      
+   
+    # all_ims = [im.split("/")[-1].split('.')[0] for im in all_ims]
+    # all_labs = [lab.split("/")[-1].split('.')[0] for lab in all_labs]
     # print(all_ims)
     # print(all_labs)
     for im in all_ims:

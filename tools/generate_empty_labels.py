@@ -1,6 +1,8 @@
 '''
 Take in a label folder and image folder, generate empty label files for all images with no label file
 (Assuming these images have no objects in them)
+
+
 Written by: Serena Mou 
 Date:       16/12/25
 '''
@@ -52,9 +54,9 @@ def main():
         img_name = img_name[0:dot_idx]
         # if not
         # full label path
-        empty_label = os.path.join(args.label_folder, img_name+".txt")
         if img_name not in label_list:
-            with open(empty_label, 'w') as outfile:
-                continue
+            empty_label = os.path.join(args.label_folder, img_name+".txt")
+            open(empty_label, 'a').close()
+            continue
 if __name__=='__main__':
     main()
